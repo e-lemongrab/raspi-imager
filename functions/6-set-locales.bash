@@ -9,4 +9,5 @@ set-locale() {
   sudo tee "$ROOT_MNT/etc/vconsole.conf" >/dev/null <<<"KEYMAP=es"
   sudo ln -sf /usr/share/zoneinfo/Europe/Madrid "$ROOT_MNT/etc/localtime"
   sudo tee "$ROOT_MNT/etc/timezone" >/dev/null <<<"Europe/Madrid"
+  sudo chroot "$ROOT_MNT" loadkeys es || true
 }
