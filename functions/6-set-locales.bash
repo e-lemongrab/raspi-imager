@@ -96,6 +96,11 @@ set-locale() {
   fi
 
   sudo tee "$ROOT_MNT/etc/locale.conf" >/dev/null <<<"LANG=${selected_locale}"
+  sudo tee "$ROOT_MNT/etc/default/locale" >/dev/null <<EOF
+LANG=${selected_locale}
+LC_CTYPE=${selected_locale}
+LC_MESSAGES=${selected_locale}
+EOF
   sudo tee "$ROOT_MNT/etc/vconsole.conf" >/dev/null <<<"KEYMAP=${selected_keymap}"
   sudo tee "$ROOT_MNT/etc/default/keyboard" >/dev/null <<EOF
 XKBMODEL="pc105"
