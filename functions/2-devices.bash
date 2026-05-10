@@ -3,7 +3,7 @@ set -euo pipefail
 
 devices() {
   echo "[*] Available removable devices:"
-  mapfile -t DEVICES < <(lsblk -d -o NAME,SIZE,MODEL,RM | awk '$4==1 {print "/dev/"$1}')
+  mapfile -t DEVICES < <(lsblk -d -n -o NAME,RM | awk '$2==1 {print "/dev/"$1}')
   for i in "${!DEVICES[@]}"; do
       echo "$((i+1))) ${DEVICES[$i]}"
   done
