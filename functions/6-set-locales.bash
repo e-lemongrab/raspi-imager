@@ -112,4 +112,28 @@ EOF
   sudo ln -sf "/usr/share/zoneinfo/${selected_timezone}" "$ROOT_MNT/etc/localtime"
   sudo tee "$ROOT_MNT/etc/timezone" >/dev/null <<<"${selected_timezone}"
 
+  echo "[*] Installing first-boot locale generation service"
+  sudo tee "$ROOT_MNT/etc/systemd/system/raspi-imager-locale-gen.service" >/dev/null <<'EOF'
+[Unit]
+Description=Generate configured locale on first boot
+DefaultDependencies=no
+After=local-fs.target systemd-remount-fs.service
+Before=ssh.service sshd.service getty@tty1.service multi-user.target
+ConditionPathExists=/etc/locale.gen
+ConditionPathExists=!/var/lib/raspi-imager-locale-generated
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/locale-gen
+ExecStart=/usr/bin/touch /var/lib/raspi-imager-locale-generated
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  sudo mkdir -p "$ROOT_MNT/etc/systemd/system/multi-user.target.wants"
+  sudo ln -sf ../raspi-imager-locale-gen.service \
+    "$ROOT_MNT/etc/systemd/system/multi-user.target.wants/raspi-imager-locale-gen.service"
+
 }
