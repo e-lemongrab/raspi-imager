@@ -18,11 +18,18 @@ The workflow is intended for Linux and operates on the selected microSD card, no
 - Disables WiFi, Bluetooth, and some first-boot services
 - Cleans up and unmounts partitions at the end
 
+Two results of this are worth knowing before you boot the card:
+
+- The new user gets **passwordless sudo** (`NOPASSWD:ALL`), and `sshd_config` is replaced with a key-only configuration (`PasswordAuthentication no`). The password you choose during setup works on the console and nowhere else.
+- The `resize2fs_once` first-boot service is removed, so **the root filesystem is never expanded** to fill the card. The Pi keeps the image's original rootfs size.
+
 ## Scope
 
 This repository is intended to prepare Raspberry Pi OS images offline on a microSD card already inserted into the Linux machine running the script.
 
-It is not designed to modify the host desktop or laptop system, although it does rely on host tools such as `sudo`, `dd`, `mount`, `lsblk`, `openssl`, and `chroot`.
+It is not designed to modify the host desktop or laptop system, although it does rely on host tools such as `sudo`, `dd`, `mount`, `lsblk`, and `openssl`.
+
+All changes are written directly to the mounted partitions. The script never chroots into the image.
 
 ## Requirements
 
@@ -45,7 +52,6 @@ It is not designed to modify the host desktop or laptop system, although it does
 - `sed`
 - `tee`
 - `openssl`
-- `chroot`
 
 ## Dependencies
 
@@ -97,6 +103,7 @@ Known limitations:
 
 - The script erases the selected target device
 - Verify the target device carefully before confirming
+- Device selection is barely validated. Text or an out-of-range number aborts safely, but entering `0` becomes a negative array index and silently selects the **last** device in the list. The confirmation screen showing path, size, model, and serial is your only check — read it
 - This project is built for a direct personal workflow, not for every Raspberry Pi OS variant
 - If the base image layout changes, some operations may stop working
 
