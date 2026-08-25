@@ -14,4 +14,5 @@ set-locale
 new-user
 ssh
 disable-services
+static-ip
 cleanup

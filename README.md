@@ -16,12 +16,35 @@ The workflow is intended for Linux and operates on the selected microSD card, no
 - Creates a new user and removes the default `pi` user
 - Enables SSH and adds a selected public key from `~/.ssh`
 - Disables WiFi, Bluetooth, and some first-boot services
+- Optionally writes a static IPv4 for `eth0` as a NetworkManager keyfile
 - Cleans up and unmounts partitions at the end
 
 Two results of this are worth knowing before you boot the card:
 
 - The new user gets **passwordless sudo** (`NOPASSWD:ALL`), and `sshd_config` is replaced with a key-only configuration (`PasswordAuthentication no`). The password you choose during setup works on the console and nowhere else.
 - The `resize2fs_once` first-boot service is removed, so **the root filesystem is never expanded** to fill the card. The Pi keeps the image's original rootfs size.
+
+## Static IPv4 (optional)
+
+The last interactive step offers to write `/etc/NetworkManager/system-connections/eth0-static.nmconnection`
+into the image, so the Pi boots with a fixed address instead of asking for a
+DHCP lease. Answering `N` leaves `eth0` on DHCP, which is the previous
+behaviour.
+
+Why it is worth saying yes: a DHCP lease is a dependency that fails at the
+worst moment. On 2026-08-25 a 2-second carrier flap left one k3s master **17
+minutes** without an address - NetworkManager cancels the DHCP transaction when
+carrier drops and retries with a growing backoff, so the outage outlived its
+cause by three orders of magnitude. A MAC reservation in the router does not
+help: the reservation lives in the router, and the host still has to be granted
+the lease.
+
+Keep the router's MAC reservation anyway, so the address is never handed to
+another device.
+
+Assumes a NetworkManager-based image (Raspberry Pi OS Bookworm or newer). On
+older images that still use `dhcpcd`, the keyfile is ignored and the Pi stays
+on DHCP.
 
 ## Scope
 
